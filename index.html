@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartTag Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #718096;
+            margin-bottom: 32px;
+            font-size: 1em;
+        }
+        
+        .signature-output {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #2d3748;
+            white-space: pre-line;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .signature-output:hover {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+        
+        .signature-output.copied {
+            border-color: #48bb78;
+            background: #f0fff4;
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        .generate-btn {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 8px 16px 8px;
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(66, 153, 225, 0.4);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .copy-feedback {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+        }
+        
+        .copy-feedback.show {
+            transform: translateX(0);
+        }
+        
+        .instructions {
+            background: #edf2f7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 24px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #4a5568;
+        }
+        
+        .instructions h3 {
+            color: #2d3748;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .shortcut-info {
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 16px;
+            margin-top: 16px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .shortcut-info strong {
+            color: #234e52;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 24px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .generate-btn {
+                padding: 14px 24px;
+                font-size: 14px;
+                margin: 0 4px 12px 4px;
+            }
+            
+            .copy-feedback {
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                transform: translateY(-100px);
+            }
+            
+            .copy-feedback.show {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏷️ SmartTag Generator</h1>
+        <p class="subtitle">Generate unique SmartTags for email identification</p>
+        
+        <div class="signature-output" id="signatureOutput" onclick="copySignature()">
+            Click "Generate" to create your SmartTag
+        </div>
+        
+        <button class="generate-btn" onclick="generateSignature()">🎲 Generate New SmartTag</button>
+        
+        <div class="instructions">
+            <h3>📋 How to Use:</h3>
+            <p><strong>1.</strong> Click "Generate New SmartTag" to create a unique tag</p>
+            <p><strong>2.</strong> Click anywhere on the tag box to copy it</p>
+            <p><strong>3.</strong> Paste it into your email</p>
+            
+            <div class="shortcut-info">
+                <p><strong>💡 Pro Tip:</strong> Bookmark this page and press <strong>Space</strong> to generate, <strong>Enter</strong> to copy!</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="copy-feedback" id="copyFeedback">✅ SmartTag copied to clipboard!</div>
+
+    <script>
+        const adjectives = [
+            'brilliant', 'swift', 'clever', 'calm', 'bold', 'bright', 'witty', 'sharp', 
+            'keen', 'wise', 'agile', 'sleek', 'vibrant', 'nimble', 'astute', 'deft',
+            'alert', 'quick', 'savvy', 'smart', 'crisp', 'clear', 'fluid', 'smooth',
+            'noble', 'grand', 'epic', 'prime', 'elite', 'stellar', 'cosmic', 'lunar',
+            'radiant', 'fierce', 'mighty', 'serene', 'robust', 'elegant', 'graceful', 'dynamic',
+            'mystical', 'ancient', 'modern', 'classic', 'vintage', 'futuristic', 'timeless', 'eternal',
+            'blazing', 'frozen', 'electric', 'magnetic', 'atomic', 'quantum', 'digital', 'analog',
+            'spiral', 'linear', 'curved', 'angular', 'rounded', 'sharp', 'blunt', 'precise',
+            'vast', 'tiny', 'massive', 'delicate', 'sturdy', 'fragile', 'solid', 'hollow',
+            'transparent', 'opaque', 'glossy', 'matte', 'rough', 'silky', 'velvet', 'crystal',
+            'amber', 'ivory', 'bronze', 'silver', 'golden', 'platinum', 'diamond', 'pearl',
+            'scarlet', 'crimson', 'azure', 'emerald', 'violet', 'indigo', 'coral', 'turquoise',
+            'stormy', 'peaceful', 'chaotic', 'ordered', 'wild', 'tame', 'free', 'bound',
+            'rising', 'falling', 'floating', 'diving', 'soaring', 'gliding', 'racing', 'crawling',
+            'whispering', 'roaring', 'singing', 'dancing', 'laughing', 'weeping', 'smiling', 'frowning',
+            'thinking', 'dreaming', 'hoping', 'wishing', 'knowing', 'learning', 'teaching', 'growing'
+        ];
+        
+        const animals = [
+            'whale', 'falcon', 'tiger', 'wolf', 'eagle', 'dolphin', 'lion', 'shark',
+            'hawk', 'fox', 'bear', 'panther', 'raven', 'owl', 'cobra', 'leopard',
+            'phoenix', 'dragon', 'griffin', 'sphinx', 'jaguar', 'lynx', 'orca',
+            'mantis', 'viper', 'stallion', 'mustang', 'bison', 'elk', 'moose',
+            'elephant', 'rhino', 'hippo', 'giraffe', 'zebra', 'cheetah', 'gazelle', 'antelope',
+            'buffalo', 'yak', 'ox', 'bull', 'ram', 'goat', 'sheep', 'deer',
+            'rabbit', 'hare', 'squirrel', 'chipmunk', 'beaver', 'otter', 'seal', 'walrus',
+            'penguin', 'albatross', 'pelican', 'flamingo', 'crane', 'heron', 'stork', 'swan',
+            'peacock', 'parrot', 'toucan', 'hummingbird', 'robin', 'sparrow', 'finch', 'canary',
+            'bat', 'mole', 'hedgehog', 'porcupine', 'armadillo', 'sloth', 'anteater', 'pangolin',
+            'mongoose', 'meerkat', 'lemur', 'monkey', 'ape', 'gorilla', 'orangutan', 'chimpanzee',
+            'turtle', 'tortoise', 'lizard', 'iguana', 'gecko', 'chameleon', 'salamander', 'newt',
+            'frog', 'toad', 'crocodile', 'alligator', 'python', 'anaconda', 'boa', 'rattlesnake',
+            'octopus', 'squid', 'jellyfish', 'starfish', 'seahorse', 'lobster', 'crab', 'shrimp',
+            'butterfly', 'moth', 'beetle', 'ant', 'bee', 'wasp', 'dragonfly', 'grasshopper',
+            'cricket', 'cicada', 'firefly', 'ladybug', 'spider', 'scorpion', 'centipede', 'millipede'
+        ];
+        
+        const locations = [
+            'manhattan', 'tokyo', 'paris', 'sydney', 'berlin', 'london', 'denver',
+            'seattle', 'miami', 'vegas', 'chicago', 'boston', 'austin', 'phoenix',
+            'portland', 'atlanta', 'dallas', 'houston', 'montreal', 'toronto',
+            'barcelona', 'rome', 'madrid', 'amsterdam', 'vienna', 'prague',
+            'singapore', 'bangkok', 'mumbai', 'dublin', 'oslo', 'stockholm',
+            'helsinki', 'copenhagen', 'reykjavik', 'zurich', 'geneva', 'milan', 'venice', 'florence',
+            'athens', 'istanbul', 'cairo', 'marrakech', 'casablanca', 'tunis', 'algiers', 'tripoli',
+            'nairobi', 'lagos', 'accra', 'dakar', 'bamako', 'addis', 'khartoum', 'mogadishu',
+            'riyadh', 'doha', 'kuwait', 'baghdad', 'tehran', 'kabul', 'karachi', 'lahore',
+            'delhi', 'kolkata', 'chennai', 'bangalore', 'hyderabad', 'pune', 'ahmedabad', 'jaipur',
+            'kathmandu', 'dhaka', 'colombo', 'male', 'yangon', 'hanoi', 'saigon', 'phnom',
+            'vientiane', 'jakarta', 'kuala', 'brunei', 'manila', 'cebu', 'davao', 'iloilo',
+            'seoul', 'busan', 'osaka', 'kyoto', 'nagoya', 'sapporo', 'fukuoka', 'sendai',
+            'beijing', 'shanghai', 'guangzhou', 'shenzhen', 'chengdu', 'wuhan', 'xian', 'hangzhou',
+            'taipei', 'kaohsiung', 'taichung', 'tainan', 'hsinchu', 'keelung', 'chiayi', 'pingtung',
+            'auckland', 'wellington', 'christchurch', 'hamilton', 'tauranga', 'dunedin', 'palmerston', 'napier',
+            'melbourne', 'brisbane', 'perth', 'adelaide', 'darwin', 'hobart', 'canberra', 'wollongong',
+            'vancouver', 'calgary', 'edmonton', 'winnipeg', 'quebec', 'halifax', 'victoria', 'saskatoon',
+            'newyork', 'losangeles', 'sanfrancisco', 'sandiego', 'detroit', 'cleveland', 'pittsburgh', 'baltimore',
+            'nashville', 'memphis', 'orlando', 'tampa', 'jacksonville', 'charlotte', 'raleigh', 'richmond',
+            'norfolk', 'charleston', 'savannah', 'birmingham', 'jackson', 'mobile', 'pensacola', 'tallahassee',
+            'saopaulo', 'rio', 'salvador', 'fortaleza', 'belo', 'manaus', 'curitiba', 'recife',
+            'montevideo', 'asuncion', 'lapaz', 'sucre', 'quito', 'guayaquil', 'lima', 'arequipa',
+            'bogota', 'medellin', 'cali', 'barranquilla', 'caracas', 'maracaibo', 'valencia', 'maracay',
+            'santiago', 'valparaiso', 'concepcion', 'antofagasta', 'temuco', 'iquique', 'serena', 'rancagua',
+            'mexico', 'guadalajara', 'monterrey', 'puebla', 'tijuana', 'leon', 'juarez', 'torreon',
+            'havana', 'santiago', 'camaguey', 'holguin', 'santa', 'matanzas', 'cienfuegos', 'pinar',
+            'kingston', 'montego', 'spanish', 'portmore', 'may', 'mandeville', 'old', 'savanna'
+        ];
+        
+        let currentSignature = '';
+        
+        function generateSmartTag() {
+            const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+            const animal = animals[Math.floor(Math.random() * animals.length)];
+            const location = locations[Math.floor(Math.random() * locations.length)];
+            return `SmartTag: ${adj}-${animal}-${location}`;
+        }
+        
+        function generateSignature() {
+            const smartTag = generateSmartTag();
+            currentSignature = `${smartTag}
+This tag was automatically generated to assist with future search and context recall.`;
+            
+            const outputElement = document.getElementById('signatureOutput');
+            outputElement.innerHTML = `<span style="color: #9CA3AF; font-size: 14px;">${currentSignature.replace(/\n/g, '<br>')}</span>`;
+            outputElement.classList.remove('copied');
+        }
+        
+        function formatSignatureWithGreyTag(signature) {
+            // Split the signature to identify the SmartTag line and explanation
+            const lines = signature.split('\n');
+            const formattedLines = lines.map(line => {
+                if (line.startsWith('SmartTag:')) {
+                    return `<span style="color: #9CA3AF; font-size: 12px;">${line}</span>`;
+                } else if (line.startsWith('This tag was automatically')) {
+                    return `<span style="color: #9CA3AF; font-size: 12px;">${line}</span>`;
+                }
+                return line;
+            });
+            return formattedLines.join('<br>');
+        }
+        
+        async function copySignature() {
+            if (!currentSignature) {
+                generateSignature();
+            }
+            
+            try {
+                await navigator.clipboard.writeText(currentSignature);
+                showCopyFeedback();
+                document.getElementById('signatureOutput').classList.add('copied');
+            } catch (err) {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = currentSignature;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showCopyFeedback();
+                document.getElementById('signatureOutput').classList.add('copied');
+            }
+        }
+        
+        function showCopyFeedback() {
+            const feedback = document.getElementById('copyFeedback');
+            feedback.classList.add('show');
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 2000);
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space' && event.target === document.body) {
+                event.preventDefault();
+                generateSignature();
+            } else if (event.code === 'Enter' && event.target === document.body) {
+                event.preventDefault();
+                copySignature();
+            }
+        });
+        
+        // Generate initial signature
+        window.onload = function() {
+            generateSignature();
+        };
+    </script>
+</body>
+</html>
